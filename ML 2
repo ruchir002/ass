@@ -1,45 +1,99 @@
-1)	import pandas as pd
+# -----------------------------------------------------
+# 1. Import Libraries
+# -----------------------------------------------------
+import pandas as pd
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import metrics
-2)	df=pd.read_csv("C:\\Users\\sspm-engg\\Desktop\\emails.csv")
-3)	df
-4)	df.head()
-5)	df.shape
-6)	df.columns
-7)	df.dtypes
-8)	df.describe()
-9)	s=df.isnull().sum()
-s
-10)	s[s>0]
-11)	df.isnull().any()
-12)	df.dropna (inplace = True)
-13)	df.drop(['Email No.'],axis=1,inplace=True)
-14)	df.head()
-15)	df.columns
-16)	df.Prediction.unique()
-17)	df['Prediction']=df['Prediction'].replace({0:'Not spam',1:'spam'})
-18)	df
-19)	x=df.drop(columns='Prediction',axis=1)
-y=df['Prediction']
-20)	x.columns
-21)	y.head()
-22)	from sklearn.preprocessing import scale
-x=scale(x)
+from sklearn.preprocessing import scale
 from sklearn.model_selection import train_test_split
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
-23)	from sklearn.neighbors import KNeighborsClassifier
-knn=KNeighborsClassifier(n_neighbors=7)
-24)	knn.fit(x_train,y_train) y_pred=knn.predict(x_test)
-25)	print("prediction:\n")
-print(y_pred)
-26)	M = metrics.accuracy_score(y_test, y_pred)
-print("KNN accuracy:", M)
-27)	C=metrics.confusion_matrix(y_test,y_pred)
-print("Confusion matrix:",C)
-28)	model=SVC(C=1)
-model.fit(x_train,y_train)
-y_pred=model.predict(x_test)
-29)	metrics.confusion_matrix(y_true=y_test,y_pred=y_pred)
-30)	print("SVM accuracy=",metrics.accuracy_score(y_test,y_pred))
+
+# -----------------------------------------------------
+# 2. Load Dataset
+# -----------------------------------------------------
+df = pd.read_csv("C:\\Users\\sspm-engg\\Desktop\\emails.csv")
+
+print(df.head())
+print(df.shape)
+print(df.columns)
+print(df.dtypes)
+print(df.describe())
+
+# -----------------------------------------------------
+# 3. Check missing values
+# -----------------------------------------------------
+s = df.isnull().sum()
+print(s)
+print(s[s > 0])
+print(df.isnull().any())
+
+# Drop missing rows
+df.dropna(inplace=True)
+
+# -----------------------------------------------------
+# 4. Drop unnecessary column
+# -----------------------------------------------------
+df.drop(['Email No.'], axis=1, inplace=True)
+
+print(df.head())
+print(df.columns)
+
+# -----------------------------------------------------
+# 5. Encode Prediction Column
+# -----------------------------------------------------
+print(df.Prediction.unique())   # Should be 0 and 1
+df['Prediction'] = df['Prediction'].replace({0: 'Not spam', 1: 'spam'})
+
+print(df.head())
+
+# -----------------------------------------------------
+# 6. Split X and y
+# -----------------------------------------------------
+x = df.drop(columns='Prediction', axis=1)
+y = df['Prediction']
+
+print(x.columns)
+print(y.head())
+
+# -----------------------------------------------------
+# 7. Scaling
+# -----------------------------------------------------
+x = scale(x)
+
+# Train-test split
+x_train, x_test, y_train, y_test = train_test_split(
+    x, y, test_size=0.3, random_state=42
+)
+
+# -----------------------------------------------------
+# 8. KNN Classifier
+# -----------------------------------------------------
+knn = KNeighborsClassifier(n_neighbors=7)
+knn.fit(x_train, y_train)
+
+y_pred = knn.predict(x_test)
+
+print("KNN Predictions:\n", y_pred)
+
+# Accuracy
+M = metrics.accuracy_score(y_test, y_pred)
+print("KNN Accuracy:", M)
+
+# Confusion matrix
+C = metrics.confusion_matrix(y_test, y_pred)
+print("KNN Confusion Matrix:\n", C)
+
+# -----------------------------------------------------
+# 9. SVM Classifier
+# -----------------------------------------------------
+model = SVC(C=1)
+model.fit(x_train, y_train)
+
+y_pred_svm = model.predict(x_test)
+
+# Confusion Matrix
+print("SVM Confusion Matrix:\n", metrics.confusion_matrix(y_test, y_pred_svm))
+
+# Accuracy
+print("SVM Accuracy:", metrics.accuracy_score(y_test, y_pred_svm))
