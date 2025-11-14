@@ -35,3 +35,13 @@ int main() {
 
     return 0;
 }
+
+
+OUTPUT (base) sspm@sspm:~$ g++ daa1.cpp (base) 
+sspm@sspm:~$ ./a.out 
+Fibonacci Series in C++ Without Using Recursion (Iterative):
+Enter the number of terms: 14
+Fibonacci Series: 0 1 1 2 3 5 8 13 21 34 55 89 144 233 
+Fibonacci in C++ Using Recursion:
+Enter the position (n): 8
+Fibonacci number at position 8 is: 21
