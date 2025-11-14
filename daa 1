@@ -1,53 +1,37 @@
- #include <iostream> 
-using namespace std; 
-// Recursive function to calculate Fibonacci number at position n 
-int fibonacci(int n) { 
-if (n <= 1) return n; 
-return fibonacci(n - 1) + fibonacci(n - 2); 
-} 
- 
- 
-int main() { int n; 
- 
- 
-// --- Iterative Method --- 
-cout << "Fibonacci Series in C++ Without Using Recursion (Iterative):\n"; 
-cout << "Enter the number of terms: "; 
-cin >> n; 
- 
- 
-int t1 = 0, t2 = 1, nT; 
- 
- 
-cout << "Fibonacci Series: "; 
-for (int i = 1; i <= n; ++i) { 
-cout << t1 << " "; 
-nT = t1 + t2; 
-Name: Kudal Vaibhav sonaji
- Roll No: CO3A433
-t1 = t2; 
-t2 = nT; 
-} 
- 
- 
-// --- Recursive Method --- int p; 
-cout << "\n\nFibonacci in C++ Using Recursion:\n"; 
-cout << "Enter the position (n): "; 
-cin >> p; 
- 
- 
-cout << "Fibonacci number at position " << p << " is: " << fibonacci(p) << endl; 
- 
- 
-return 0; 
+#include <iostream>
+using namespace std;
+
+// Recursive function to calculate Fibonacci number at position n
+int fibonacci(int n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-OUTPUT 
-(base) sspm@sspm:~$ g++ daa1.cpp 
-(base) sspm@sspm:~$ ./a.out 
-Fibonacci Series in C++ Without Using Recursion (Iterative): 
-Enter the number of terms: 14 
-Fibonacci Series: 0 1 1 2 3 5 8 13 21 34 55 89 144 233 
-Fibonacci in C++ Using Recursion: 
-Enter the position (n): 8 
-Fibonacci number at position 8 is: 21
+int main() {
+    int n;
+
+    // --- Iterative Method ---
+    cout << "Fibonacci Series in C++ Without Using Recursion (Iterative):\n";
+    cout << "Enter the number of terms: ";
+    cin >> n;
+
+    int t1 = 0, t2 = 1, nT;
+
+    cout << "Fibonacci Series: ";
+    for (int i = 1; i <= n; ++i) {
+        cout << t1 << " ";
+        nT = t1 + t2;
+        t1 = t2;
+        t2 = nT;
+    }
+
+    // --- Recursive Method ---
+    int p;
+    cout << "\n\nFibonacci in C++ Using Recursion:\n";
+    cout << "Enter the position (n): ";
+    cin >> p;
+
+    cout << "Fibonacci number at position " << p << " is: " << fibonacci(p) << endl;
+
+    return 0;
+}
