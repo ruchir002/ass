@@ -1,72 +1,144 @@
-1)	import pandas as pd
+# ---------------------------------------------------------
+# 1. Import Libraries
+# ---------------------------------------------------------
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.cluster import KMeans,k_means
+from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-2)	df=pd.read_csv("C:\\Users\\Admin\\Downloads\\sales_data_sample.csv",encoding='latin1')
-3)	df.head()
-4)	df.shape
-5)	df.describe()
-6)	df.info()
-7)	df.isnull().sum()
-8)	df.dtypes
-df=df.drop(['ADDRESSLINE1','ADDRESSLINE2','STATUS','POSTALCODE','CITY','TERRITORY','STATE'],axis=1, errors='ignore')
-9)	df.isnull().sum()
-10)	df.dtypes
-11)	df['COUNTRY'].unique()
-12)	df['PRODUCTLINE'].unique()
-13)	df['DEALSIZE'].unique()
-14)	productline=pd.get_dummies(df['PRODUCTLINE'])
-Dealsize=pd.get_dummies(df['DEALSIZE'])
-15)	df=pd.concat([df,productline,Dealsize],axis=1)
-16)	df_drop=['COUNTRY','PRODUCTLINE','DEALSIZE']
-df=df.drop(df_drop,axis=1)
-17)	df['PRODUCTCODE'] = pd.Categorical(df['PRODUCTCODE']).codes
-18)	df.drop('ORDERDATE', axis=1, inplace=True, errors='ignore')
-19)	df.dtypes
-20)	X = pd.get_dummies(df, drop_first=True)
-21)	distortions = []
+from sklearn.model_selection import train_test_split
+
+# ---------------------------------------------------------
+# 2. Load Dataset
+# ---------------------------------------------------------
+df = pd.read_csv("C:\\Users\\Admin\\Downloads\\sales_data_sample.csv", encoding='latin1')
+
+print(df.head())
+print(df.shape)
+print(df.describe())
+print(df.info())
+print(df.isnull().sum())
+
+# ---------------------------------------------------------
+# 3. Drop Unwanted Columns
+# ---------------------------------------------------------
+df = df.drop(['ADDRESSLINE1','ADDRESSLINE2','STATUS','POSTALCODE','CITY',
+              'TERRITORY','STATE'], axis=1, errors='ignore')
+
+print(df.isnull().sum())
+
+# ---------------------------------------------------------
+# 4. Replace Categorical Variables
+# ---------------------------------------------------------
+print(df['COUNTRY'].unique())
+print(df['PRODUCTLINE'].unique())
+print(df['DEALSIZE'].unique())
+
+productline = pd.get_dummies(df['PRODUCTLINE'], prefix="ProductLine")
+dealsize = pd.get_dummies(df['DEALSIZE'], prefix="DealSize")
+
+df = pd.concat([df, productline, dealsize], axis=1)
+
+df = df.drop(['COUNTRY', 'PRODUCTLINE', 'DEALSIZE'], axis=1)
+
+# ---------------------------------------------------------
+# 5. Encode PRODUCTCODE
+# ---------------------------------------------------------
+df['PRODUCTCODE'] = pd.Categorical(df['PRODUCTCODE']).codes
+
+# Remove dates
+df.drop('ORDERDATE', axis=1, inplace=True, errors='ignore')
+
+print(df.dtypes)
+
+# ---------------------------------------------------------
+# 6. Create Numerical Dataset for Clustering
+# ---------------------------------------------------------
+X = pd.get_dummies(df, drop_first=True)
+
+# ---------------------------------------------------------
+# 7. ELBOW METHOD
+# ---------------------------------------------------------
+distortions = []
 K = range(1, 11)
-for k in K:
-kmeanModel = KMeans(n_clusters=k, random_state=42)
-kmeanModel.fit(X)
-distortions.append(kmeanModel.inertia_)
-22)	plt.figure(figsize=(16,8))
+
+for k in K:                       # FIXED INDENTATION
+    kmeanModel = KMeans(n_clusters=k, random_state=42)
+    kmeanModel.fit(X)
+    distortions.append(kmeanModel.inertia_)
+
+plt.figure(figsize=(16, 8))
 plt.plot(K, distortions, 'bx-')
 plt.xlabel('k')
 plt.ylabel('Distortion')
-plt.title('The Elbow Method showing the optimal k')
+plt.title('Elbow Method Showing Optimal k')
 plt.show()
-23)	X_train = df.values
-24)	X_train.shape
-25)	import pandas as pd
-from sklearn.model_selection import train_test_split
-X = df.select_dtypes(include=['number'])
-X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
-from sklearn.cluster import KMeans
-26)	model = KMeans(n_clusters=3, random_state=2)
-model = model.fit(X_train)
+
+# ---------------------------------------------------------
+# 8. Train/Test Split & K-Means
+# ---------------------------------------------------------
+X_number = df.select_dtypes(include=['number'])
+
+X_train, X_test = train_test_split(X_number, test_size=0.2, random_state=42)
+
+model = KMeans(n_clusters=3, random_state=2)
+model.fit(X_train)
+
 predictions = model.predict(X_train)
-27)	unique,counts = np.unique(predictions,return_counts=True)
-28)	counts = counts.reshape(1,3)
-29)	counts_df = pd.DataFrame(counts,columns=['Cluster1','Cluster2','Cluster3'])
-30)	counts_df.head()
-31)	pca = PCA(n_components=2)
-32)	reduced_X = pd.DataFrame(pca.fit_transform(X_train),columns=['PCA1','PCA2'])
-33)	reduced_X.head()
-34)	plt.figure(figsize=(14,10))
-plt.scatter(reduced_X['PCA1'],reduced_X['PCA2'])
-35)	model.cluster_centers_
-36)	reduced_centers = pca.transform(model.cluster_centers_)
-37)	reduced_centers
-38)	plt.figure(figsize=(14,10))
-plt.scatter(reduced_X['PCA1'],reduced_X['PCA2'])
-plt.scatter(reduced_centers[:,0],reduced_centers[:,1],color='black',marker='x',s=300)
-39)	reduced_X['Clusters'] = predictions
-40)	reduced_X.head()
-41)	plt.figure(figsize=(14,10))
-plt.scatter(reduced_X[reduced_X['Clusters'] == 0].loc[:,'PCA1'],reduced_X[reduced_X['Clusters'] == 0].loc[:,'PCA2'],color='slateblue')
-plt.scatter(reduced_X[reduced_X['Clusters'] == 1].loc[:,'PCA1'],reduced_X[reduced_X['Clusters'] == 1].loc[:,'PCA2'],color='springgreen')
-plt.scatter(reduced_X[reduced_X['Clusters'] == 2].loc[:,'PCA1'],reduced_X[reduced_X['Clusters'] == 2].loc[:,'PCA2'],color='indigo')
-plt.scatter(reduced_centers[:,0],reduced_centers[:,1],color='black',marker='x',s=300)
+
+# ---------------------------------------------------------
+# 9. Count Cluster Members
+# ---------------------------------------------------------
+unique, counts = np.unique(predictions, return_counts=True)
+counts_df = pd.DataFrame(counts.reshape(1, 3), columns=['Cluster1','Cluster2','Cluster3'])
+
+print(counts_df)
+
+# ---------------------------------------------------------
+# 10. PCA FOR VISUALIZATION
+# ---------------------------------------------------------
+pca = PCA(n_components=2)
+reduced_X = pd.DataFrame(pca.fit_transform(X_train), columns=['PCA1','PCA2'])
+
+# Plot PCA Points
+plt.figure(figsize=(14, 10))
+plt.scatter(reduced_X['PCA1'], reduced_X['PCA2'])
+plt.title("PCA Projection")
+plt.show()
+
+# ---------------------------------------------------------
+# 11. Cluster Centroids in PCA Space
+# ---------------------------------------------------------
+centers = model.cluster_centers_
+reduced_centers = pca.transform(centers)
+
+# Plotting
+plt.figure(figsize=(14, 10))
+plt.scatter(reduced_X['PCA1'], reduced_X['PCA2'])
+plt.scatter(reduced_centers[:,0], reduced_centers[:,1], color='black', marker='x', s=300)
+plt.title("Cluster Centers on PCA Map")
+plt.show()
+
+# ---------------------------------------------------------
+# 12. Color-coded Cluster Plot
+# ---------------------------------------------------------
+reduced_X['Clusters'] = predictions
+
+plt.figure(figsize=(14, 10))
+
+plt.scatter(reduced_X[reduced_X['Clusters'] == 0]['PCA1'],
+            reduced_X[reduced_X['Clusters'] == 0]['PCA2'], color='slateblue', label='Cluster 0')
+
+plt.scatter(reduced_X[reduced_X['Clusters'] == 1]['PCA1'],
+            reduced_X[reduced_X['Clusters'] == 1]['PCA2'], color='springgreen', label='Cluster 1')
+
+plt.scatter(reduced_X[reduced_X['Clusters'] == 2]['PCA1'],
+            reduced_X[reduced_X['Clusters'] == 2]['PCA2'], color='indigo', label='Cluster 2')
+
+# Plot cluster centers
+plt.scatter(reduced_centers[:,0], reduced_centers[:,1], color='black', marker='x', s=300, label='Centers')
+
+plt.legend()
+plt.title("Clusters Visualized with PCA")
+plt.show()
